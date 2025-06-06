@@ -17,7 +17,6 @@ services:
       - SPRING_REDIS_PORT=6379
       - SPRING_REDIS_PASSWORD=redis_password
       - JWT_SECRET=quit-journey-docker-secret-key-change-in-production-2024
-      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     depends_on:
       db:
         condition: service_healthy

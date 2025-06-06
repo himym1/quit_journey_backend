@@ -7,7 +7,6 @@ services:
     container_name: quit-journey-api
     ports:
       - "8080:8080"
-      - "5005:5005"  # 调试端口
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/quitjourney
@@ -15,9 +14,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=quitjourney_pass
       - SPRING_REDIS_HOST=redis
       - SPRING_REDIS_PORT=6379
-      - SPRING_REDIS_PASSWORD=redis_password
       - JWT_SECRET=quit-journey-docker-secret-key-change-in-production-2024
-      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     depends_on:
       db:
         condition: service_healthy
@@ -66,7 +63,7 @@ services:
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "redis_password", "ping"]
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -82,7 +79,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
     depends_on:
       - api

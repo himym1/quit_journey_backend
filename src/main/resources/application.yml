@@ -89,15 +89,37 @@ jwt:
 # API Documentation
 springdoc:
   api-docs:
+    enabled: true
     path: /api-docs
+    groups:
+      enabled: true
   swagger-ui:
+    enabled: true
     path: /swagger-ui.html
     operationsSorter: method
     tagsSorter: alpha
-  info:
-    title: "焕新之旅 - 戒烟辅助应用 API"
-    description: "提供用户认证、数据同步、戒烟记录管理等功能的RESTful API服务"
-    version: "1.0.0"
-    contact:
-      name: "Quit Journey Team"
-      email: "support@quitjourney.com"
+    displayRequestDuration: true
+    displayOperationId: true
+    showExtensions: true
+    showCommonExtensions: true
+    defaultModelsExpandDepth: 2
+    defaultModelExpandDepth: 2
+    docExpansion: none
+    filter: true
+    tryItOutEnabled: true
+  group-configs:
+    - group: 'auth'
+      displayName: '认证模块'
+      pathsToMatch: '/auth/**'
+    - group: 'users'
+      displayName: '用户管理'
+      pathsToMatch: '/users/**'
+    - group: 'checkins'
+      displayName: '每日打卡'
+      pathsToMatch: '/checkins/**'
+    - group: 'achievements'
+      displayName: '成就系统'
+      pathsToMatch: '/achievements/**'
+    - group: 'sync'
+      displayName: '数据同步'
+      pathsToMatch: '/sync/**'

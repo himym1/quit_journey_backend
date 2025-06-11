@@ -40,9 +40,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     
     // JWT
-    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
     
     // API Documentation
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
@@ -86,4 +86,27 @@ tasks.withType<Test> {
 
 tasks.jar {
     enabled = false
+}
+
+// 自定义任务：同步 Apifox
+tasks.register<Exec>("syncApifox") {
+    group = "documentation"
+    description = "同步 OpenAPI 文档到 Apifox"
+    
+    dependsOn("bootRun")
+    
+    commandLine("bash", "scripts/sync-apifox.sh")
+    
+    doFirst {
+        println("🚀 开始同步 API 文档到 Apifox...")
+    }
+    
+    doLast {
+        println("✅ Apifox 同步任务完成！")
+    }
+}
+
+// 在 build 任务完成后自动同步（可选）
+tasks.named("build") {
+    finalizedBy("syncApifox")
 }

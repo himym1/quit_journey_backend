@@ -1,22 +1,31 @@
-version: '3.8'
-
 services:
   # 后端API服务
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     container_name: quit-journey-api
     ports:
       - "8080:8080"
       - "5005:5005"  # 调试端口
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
+      # 使用dev profile，但通过环境变量覆盖Docker特定配置
+      - SPRING_PROFILES_ACTIVE=dev
+      
+      # 数据库配置（覆盖dev配置中的localhost）
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/quitjourney
       - SPRING_DATASOURCE_USERNAME=quitjourney_user
       - SPRING_DATASOURCE_PASSWORD=quitjourney_pass
+      
+      # Redis配置（覆盖dev配置中的localhost）
       - SPRING_REDIS_HOST=redis
       - SPRING_REDIS_PORT=6379
       - SPRING_REDIS_PASSWORD=redis_password
+      
+      # Docker专用JWT密钥
       - JWT_SECRET=quit-journey-docker-secret-key-change-in-production-2024
+      
+      # JVM调试配置
       - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     depends_on:
       db:
@@ -82,8 +91,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
+      - ./nginx/app.conf:/etc/nginx/conf.d/app.conf:ro  # ✅ 仅挂站点文件
+      - ./nginx/empty.conf:/etc/nginx/conf.d/default.conf:ro # 覆盖官方默认站点
+      # - ./ssl:/etc/nginx/ssl:ro
     depends_on:
       - api
     restart: unless-stopped

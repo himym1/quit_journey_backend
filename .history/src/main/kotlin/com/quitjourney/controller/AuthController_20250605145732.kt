@@ -28,19 +28,15 @@ class AuthController(
     @Operation(summary = "用户注册", description = "创建新用户账户")
     fun register(@Valid @RequestBody request: RegisterRequest): ResponseEntity<ApiResponse<AuthResponse>> {
         return try {
-            println("收到注册请求: email=${request.email}, name=${request.name}, agreeToTerms=${request.agreeToTerms}")
             val authResponse = authService.register(request)
             ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(authResponse))
         } catch (e: IllegalArgumentException) {
-            println("注册失败 - IllegalArgumentException: ${e.message}")
             ResponseEntity.badRequest()
                 .body(ApiResponse.error("REGISTRATION_ERROR", e.message ?: "注册失败"))
         } catch (e: Exception) {
-            println("注册失败 - Exception: ${e.javaClass.simpleName}: ${e.message}")
-            e.printStackTrace()
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("INTERNAL_ERROR", "服务器内部错误: ${e.message}"))
+                .body(ApiResponse.error("INTERNAL_ERROR", "服务器内部错误"))
         }
     }
     

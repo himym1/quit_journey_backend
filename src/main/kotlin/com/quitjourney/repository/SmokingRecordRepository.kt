@@ -74,12 +74,12 @@ interface SmokingRecordRepository : JpaRepository<SmokingRecord, UUID> {
      * 查找包含特定触发标签的记录
      */
     @Query("""
-        SELECT s FROM SmokingRecord s 
-        WHERE s.user.id = :userId AND :tag = ANY(s.triggerTags)
+        SELECT * FROM smoking_records s
+        WHERE s.user_id = :userId AND :tag = ANY(s.trigger_tags)
         ORDER BY s.timestamp DESC
-    """)
+    """, nativeQuery = true)
     fun findByUserIdAndTriggerTagsContaining(
-        @Param("userId") userId: UUID, 
+        @Param("userId") userId: UUID,
         @Param("tag") tag: String
     ): List<SmokingRecord>
     

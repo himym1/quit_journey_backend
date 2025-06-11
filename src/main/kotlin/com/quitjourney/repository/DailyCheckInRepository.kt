@@ -48,21 +48,42 @@ interface DailyCheckInRepository : JpaRepository<DailyCheckIn, UUID> {
     /**
      * 查找用户已打卡的记录
      */
-    fun findByUserIdAndIsCheckedInOrderByCheckinDateDesc(userId: UUID, isCheckedIn: Boolean): List<DailyCheckIn>
+    @Query("""
+        SELECT d FROM DailyCheckIn d
+        WHERE d.user.id = :userId AND d.isCheckedIn = :isCheckedIn
+        ORDER BY d.checkinDate DESC
+    """)
+    fun findByUserIdAndIsCheckedInOrderByCheckinDateDesc(
+        @Param("userId") userId: UUID,
+        @Param("isCheckedIn") isCheckedIn: Boolean
+    ): List<DailyCheckIn>
     
     /**
      * 统计用户总打卡天数
      */
-    fun countByUserIdAndIsCheckedIn(userId: UUID, isCheckedIn: Boolean): Long
+    @Query("""
+        SELECT COUNT(d) FROM DailyCheckIn d
+        WHERE d.user.id = :userId AND d.isCheckedIn = :isCheckedIn
+    """)
+    fun countByUserIdAndIsCheckedIn(
+        @Param("userId") userId: UUID,
+        @Param("isCheckedIn") isCheckedIn: Boolean
+    ): Long
     
     /**
      * 统计用户在指定日期范围内的打卡天数
      */
+    @Query("""
+        SELECT COUNT(d) FROM DailyCheckIn d
+        WHERE d.user.id = :userId
+        AND d.isCheckedIn = :isCheckedIn
+        AND d.checkinDate BETWEEN :startDate AND :endDate
+    """)
     fun countByUserIdAndIsCheckedInAndCheckinDateBetween(
-        userId: UUID, 
-        isCheckedIn: Boolean, 
-        startDate: LocalDate, 
-        endDate: LocalDate
+        @Param("userId") userId: UUID,
+        @Param("isCheckedIn") isCheckedIn: Boolean,
+        @Param("startDate") startDate: LocalDate,
+        @Param("endDate") endDate: LocalDate
     ): Long
     
     /**

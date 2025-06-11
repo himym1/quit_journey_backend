@@ -34,6 +34,7 @@ class AuthController(
                 .body(ApiResponse.success(authResponse))
         } catch (e: IllegalArgumentException) {
             println("注册失败 - IllegalArgumentException: ${e.message}")
+            e.printStackTrace()
             ResponseEntity.badRequest()
                 .body(ApiResponse.error("REGISTRATION_ERROR", e.message ?: "注册失败"))
         } catch (e: Exception) {

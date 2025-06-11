@@ -1,6 +1,6 @@
 # 多阶段构建 Dockerfile
 # 阶段1: 构建阶段
-FROM openjdk:17-jdk-alpine AS builder
+FROM amazoncorretto:17-alpine AS builder
 
 WORKDIR /app
 
@@ -22,7 +22,7 @@ COPY src/ src/
 RUN ./gradlew build -x test --no-daemon
 
 # 阶段2: 运行阶段
-FROM openjdk:17-jre-alpine
+FROM amazoncorretto:17-alpine
 
 WORKDIR /app
 
@@ -50,4 +50,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8080/actuator/health || exit 1
 
 # 启动应用
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=docker", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

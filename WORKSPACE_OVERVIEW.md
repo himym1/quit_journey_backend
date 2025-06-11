@@ -5,7 +5,7 @@
 ## 📋 工作区概述
 
 **项目名称**: 焕新之旅 (Quit Journey) - 戒烟辅助应用  
-**工作区路径**: `/Volumes/Android/FlutterProject/quitting_smoking`  
+**工作区路径**: `/Users/wangjianguo/IdeaProjects/quit-journey-backend`
 **项目类型**: 全栈移动应用 (前后端分离架构)  
 **开发状态**: MVP功能基本完成，后端集成进行中
 
@@ -127,7 +127,7 @@ docker-compose up -d db redis
 ```
 
 ### 服务端点
-- **API文档**: http://localhost:8080/api/v1/swagger-ui.html
+- **API文档**: http://localhost:8080/api/v1/swagger-ui/index.html
 - **健康检查**: http://localhost:8080/api/v1/actuator/health
 - **API根路径**: http://localhost:8080/api/v1/
 
@@ -226,5 +226,5 @@ docker-compose logs db         # 查看数据库日志
 
 ---
 
-**最后更新**: 2024年当前日期  
+**最后更新**: 2024年12月
 **维护者**: Quit Journey开发团队

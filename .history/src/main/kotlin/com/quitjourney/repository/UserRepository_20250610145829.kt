@@ -54,7 +54,6 @@ interface UserRepository : JpaRepository<User, UUID> {
     /**
      * 更新用户最后登录时间
      */
-    @Modifying
     @Query("UPDATE User u SET u.lastLoginAt = :lastLoginAt WHERE u.id = :userId")
     fun updateLastLoginAt(@Param("userId") userId: UUID, @Param("lastLoginAt") lastLoginAt: Instant): Int
     

@@ -111,8 +111,7 @@ class SecurityConfig(
                         "/api-docs/**",
                         "/swagger-ui/**",
                         "/swagger-ui.html",
-                        "/v3/api-docs/**",
-                        "/error" // 允许错误处理端点
+                        "/v3/api-docs/**"
                     ).permitAll()
                     
                     // OPTIONS请求允许所有
@@ -122,19 +121,11 @@ class SecurityConfig(
                     .anyRequest().authenticated()
             }
             
-            // 异常处理 - 修复：不覆盖控制器的错误响应
+            // 异常处理
             .exceptionHandling { exceptions ->
                 exceptions
-                    .authenticationEntryPoint { request, response, authException ->
-                        // 只有在非公开路径且未提供有效令牌时才返回401
-                        // 对于/auth/**路径的验证错误，让控制器处理
-                        val requestURI = request.requestURI
-                        if (requestURI.startsWith("/auth/")) {
-                            // 对于认证相关端点，不拦截错误响应，让控制器处理验证错误
-                            response.sendError(401, "认证失败")
-                        } else {
-                            response.sendError(401, "未授权访问")
-                        }
+                    .authenticationEntryPoint { _, response, _ ->
+                        response.sendError(401, "未授权访问")
                     }
                     .accessDeniedHandler { _, response, _ ->
                         response.sendError(403, "访问被拒绝")

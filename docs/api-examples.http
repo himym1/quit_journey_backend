@@ -1,0 +1,119 @@
+### 焕新之旅 API 测试示例
+### 可以在IntelliJ IDEA、VS Code等IDE中直接运行
+
+### 变量定义
+@baseUrl = http://localhost:8080/api/v1
+@accessToken = your_access_token_here
+@refreshToken = your_refresh_token_here
+
+### ================================
+### 认证相关接口
+### ================================
+
+### 用户注册
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser001",
+  "email": "test@quitjourney.com",
+  "password": "Test123456!",
+  "confirmPassword": "Test123456!",
+  "quitDate": "2024-01-01T00:00:00Z",
+  "smokingYears": 5,
+  "dailyCigarettes": 20,
+  "cigarettePrice": 15.0
+}
+
+### 用户登录
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser001",
+  "password": "Test123456!"
+}
+
+### 刷新令牌
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### ================================
+### 用户管理接口
+### ================================
+
+### 获取用户资料
+GET {{baseUrl}}/users/profile
+Authorization: Bearer {{accessToken}}
+
+### 更新用户资料
+PUT {{baseUrl}}/users/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "nickname": "戒烟达人",
+  "avatar": "https://example.com/avatar.jpg",
+  "quitReason": "为了健康和家人",
+  "targetDays": 365
+}
+
+### 获取用户统计
+GET {{baseUrl}}/users/stats
+Authorization: Bearer {{accessToken}}
+
+### ================================
+### 每日打卡接口
+### ================================
+
+### 创建打卡记录
+POST {{baseUrl}}/checkins
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "date": "2024-12-27",
+  "mood": "GOOD",
+  "cravingLevel": 2,
+  "notes": "今天感觉很好，没有想吸烟的冲动"
+}
+
+### 获取打卡记录
+GET {{baseUrl}}/checkins?page=0&size=10&startDate=2024-12-01&endDate=2024-12-31
+Authorization: Bearer {{accessToken}}
+
+### 获取打卡统计
+GET {{baseUrl}}/checkins/stats
+Authorization: Bearer {{accessToken}}
+
+### ================================
+### 成就系统接口
+### ================================
+
+### 获取所有成就
+GET {{baseUrl}}/achievements
+Authorization: Bearer {{accessToken}}
+
+### 获取用户成就
+GET {{baseUrl}}/achievements/user
+Authorization: Bearer {{accessToken}}
+
+### ================================
+### 系统监控接口
+### ================================
+
+### 健康检查
+GET {{baseUrl}}/actuator/health
+
+### 系统信息
+GET {{baseUrl}}/actuator/info
+
+### API文档
+GET {{baseUrl}}/api-docs
+
+### Swagger UI
+GET {{baseUrl}}/swagger-ui/index.html

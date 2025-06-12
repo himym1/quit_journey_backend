@@ -7,6 +7,7 @@ services:
     container_name: quit-journey-api
     ports:
       - "8080:8080"
+      - "5005:5005"  # 调试端口
     environment:
       # 使用dev profile，但通过环境变量覆盖Docker特定配置
       - SPRING_PROFILES_ACTIVE=dev

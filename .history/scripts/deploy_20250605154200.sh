@@ -43,45 +43,23 @@ log_info "开始部署到 $ENVIRONMENT 环境..."
 # 检查必要的文件
 check_files() {
     log_info "检查必要文件..."
-
+    
     local files=(
         "docker-compose.${ENVIRONMENT}.yml"
         "Dockerfile"
         ".env"
     )
-
+    
     for file in "${files[@]}"; do
         if [[ ! -f "$file" ]]; then
             log_error "缺少必要文件: $file"
             if [[ "$file" == ".env" ]]; then
                 log_info "请复制 .env.example 为 .env 并配置相应的值"
-                if [[ -f ".env.example" ]]; then
-                    log_info "发现 .env.example 文件，是否自动复制？(y/n)"
-                    read -r response
-                    if [[ "$response" == "y" || "$response" == "Y" ]]; then
-                        cp .env.example .env
-                        log_warning "已复制 .env.example 为 .env，请编辑 .env 文件并填入正确的配置值"
-                        log_info "编辑完成后请重新运行部署脚本"
-                        exit 0
-                    fi
-                fi
             fi
             exit 1
         fi
     done
-
-    # 检查环境变量文件的关键配置
-    if [[ -f ".env" ]]; then
-        log_info "检查环境变量配置..."
-        local required_vars=("DB_PASSWORD" "REDIS_PASSWORD" "JWT_SECRET")
-        for var in "${required_vars[@]}"; do
-            if ! grep -q "^${var}=" .env || grep -q "^${var}=.*your.*" .env; then
-                log_error "请在 .env 文件中正确配置 $var"
-                exit 1
-            fi
-        done
-    fi
-
+    
     log_success "文件检查完成"
 }
 

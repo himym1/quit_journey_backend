@@ -1,0 +1,149 @@
+services:
+  # 后端API服务 - 生产环境
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile  # 使用生产环境Dockerfile
+    container_name: quit-journey-api-prod
+    ports:
+      - "8080:8080"
+    environment:
+      # 生产环境配置
+      - SPRING_PROFILES_ACTIVE=prod
+
+      # 数据库配置
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/quitjourney
+      - SPRING_DATASOURCE_USERNAME=quitjourney_user
+      - SPRING_DATASOURCE_PASSWORD=secure_db_password_2024
+
+      # Redis配置
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_PASSWORD=secure_redis_password_2024
+
+      # JWT配置
+      - JWT_SECRET=quit-journey-production-secret-key-very-secure-2024-himym
+      - JWT_EXPIRATION=900000
+      - JWT_REFRESH_EXPIRATION=2592000000
+
+      # API文档配置（生产环境）
+      - API_DOCS_ENABLED=true
+      - SWAGGER_UI_ENABLED=true
+
+      # JVM优化配置
+      - JAVA_OPTS=-Xms512m -Xmx1024m -XX:+UseG1GC -XX:+UseStringDeduplication
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - quit-journey-network
+    volumes:
+      # 日志目录挂载
+      - ./logs:/var/log/quit-journey
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  # PostgreSQL数据库 - 生产环境
+  db:
+    image: postgres:15-alpine
+    container_name: quit-journey-db-prod
+    environment:
+      - POSTGRES_DB=quitjourney
+      - POSTGRES_USER=quitjourney_user
+      - POSTGRES_PASSWORD=secure_db_password_2024
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+      - ./backups:/backups  # 备份目录
+    ports:
+      - "127.0.0.1:5432:5432"  # 只绑定到本地，增加安全性
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME:-quitjourney}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - quit-journey-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+  # Redis缓存 - 生产环境
+  redis:
+    image: redis:7-alpine
+    container_name: quit-journey-redis-prod
+    command: redis-server --appendonly yes --requirepass secure_redis_password_2024
+    volumes:
+      - redis_data_prod:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro  # 自定义Redis配置
+    ports:
+      - "127.0.0.1:6379:6379"  # 只绑定到本地
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - quit-journey-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.3'
+
+  # Nginx反向代理 - 生产环境
+  nginx:
+    image: nginx:alpine
+    container_name: quit-journey-nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/prod.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro  # SSL证书目录
+      - ./logs/nginx:/var/log/nginx  # Nginx日志
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - quit-journey-network
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.2'
+
+# 生产环境数据卷
+volumes:
+  postgres_data_prod:
+    driver: local
+  redis_data_prod:
+    driver: local
+
+# 网络配置
+networks:
+  quit-journey-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
